@@ -1,10 +1,9 @@
 [
   {
     "arguments": [
-      "/home/dev/.local/bin/sh-elf-gcc",
+      "/home/dev/.local/bin/sh-elf-g++",
       "-DFXCP",
       "-DTARGET_FXCP",
-      "-fno-builtin",
       "-Wa,--dsp",
       "-Wall",
       "-Wextra",
@@ -13,11 +12,11 @@
       "-flto=auto",
       "-c",
       "-o",
-      "CMakeFiles/myaddin.dir/src/main.c.obj",
-      "/workspaces/gint-template/my-addin/src/main.c"
+      "CMakeFiles/HH3-Clock.dir/src/main.cpp.obj",
+      "/workspaces/HH3-Clock/src/main.cpp"
     ],
-    "directory": "/workspaces/gint-template/my-addin/build-cp",
-    "file": "/workspaces/gint-template/my-addin/src/main.c",
-    "output": "/workspaces/gint-template/my-addin/build-cp/CMakeFiles/myaddin.dir/src/main.c.obj"
+    "directory": "/workspaces/HH3-Clock/build-cp",
+    "file": "/workspaces/HH3-Clock/src/main.cpp",
+    "output": "/workspaces/HH3-Clock/build-cp/CMakeFiles/HH3-Clock.dir/src/main.cpp.obj"
   }
 ]

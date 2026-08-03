@@ -1,16 +1,22 @@
 #include <gint/display.h>
 #include <gint/keyboard.h>
+#include <gint/keycodes.h>
 #include <gint/rtc.h>
-#include <vector>
 #include <stdint.h>
+#include <vector>
 
 // Lookup lists mapped directly to read-only target Flash space
 const char* WEEKDAY_NAMES[] = { "Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday" };
 const char* MONTH_NAMES[]   = { "January", "February", "March", "April", "May", "June", 
                                 "July", "August", "September", "October", "November", "December" };
 
-// Global static text scratchpad to bypass dynamic heap boundaries
-static char s_string_cache[40]; 
+// Global static text scratchpad to bypass dynamic heap boundaries.
+// Allocated as individual, isolated buffers to prevent overlapping string states.
+static char s_year_buf[5];
+static char s_day_buf[3];
+static char s_hour_buf[3];
+static char s_min_buf[3];
+static char s_sec_buf[3];
 
 // Highly-tuned SH-4A inline asm: separates digits via fractional multipliers
 inline const char* u8_to_ascii_2dig(uint8_t value, char* dest) {
@@ -71,37 +77,55 @@ inline const char* u16_to_ascii_4dig(uint16_t value, char* dest) {
     return dest;
 }
 
-// Pass each field directly into function parameters
-std::vector<const char*> convert_rtc_fields_to_vector(uint16_t year, uint8_t week_day, uint8_t month, 
-                                                      uint8_t month_day, uint8_t hours, 
-                                                      uint8_t minutes, uint8_t seconds) {
+// Pass your struct instance by reference directly into the function
+std::vector<const char*> convert_rtc_to_vector(const rtc_time_t& time) {
     std::vector<const char*> result;
     
     // Limits calculator system heap expansion cycles completely
     result.reserve(7); 
 
-    const char* year_ptr      = u16_to_ascii_4dig(year, &s_string_cache[0]);
-    const char* weekday_ptr   = (week_day < 7) ? WEEKDAY_NAMES[week_day] : "Unknown";
-    const char* month_ptr     = (month < 12)   ? MONTH_NAMES[month]     : "Unknown";
-    const char* month_day_ptr = u8_to_ascii_2dig(month_day, &s_string_cache[8]);
-    const char* hours_ptr     = u8_to_ascii_2dig(hours, &s_string_cache[16]);
-    const char* minutes_ptr   = u8_to_ascii_2dig(minutes, &s_string_cache[24]);
-    const char* seconds_ptr   = u8_to_ascii_2dig(seconds, &s_string_cache[32]);
-
-    result.push_back(year_ptr);
-    result.push_back(weekday_ptr);
-    result.push_back(month_ptr);
-    result.push_back(month_day_ptr);
-    result.push_back(hours_ptr);
-    result.push_back(minutes_ptr);
-    result.push_back(seconds_ptr);
+    // Directly read from the struct elements into distinct string cache pools
+    result.push_back(u16_to_ascii_4dig(time.year, s_year_buf));
+    result.push_back((time.week_day < 7) ? WEEKDAY_NAMES[time.week_day] : "Unknown");
+    result.push_back((time.month < 12) ? MONTH_NAMES[time.month] : "Unknown");
+    result.push_back(u8_to_ascii_2dig(time.month_day, s_day_buf));
+    result.push_back(u8_to_ascii_2dig(time.hours, s_hour_buf));
+    result.push_back(u8_to_ascii_2dig(time.minutes, s_min_buf));
+    result.push_back(u8_to_ascii_2dig(time.seconds, s_sec_buf));
 
     return result;
 }
 
-
 int main(void)
 {
-  
-  return 1;
+    rtc_time_t TIME;
+    bool running = true;
+    
+    dclear(C_WHITE);
+    dtext(0, 0, C_BLACK, "HH3-Clock, Clock for Hollyhock-3");
+    dupdate();
+    
+    std::vector<const char*> time_vector;
+    
+    while (running) {
+        rtc_get_time(&TIME);
+        time_vector = convert_rtc_to_vector(TIME);
+        
+        dclear(C_WHITE); // Clear the frame buffer on every loop to handle value updates
+        dtext(0, 0, C_BLACK, "HH3-Clock, Clock for Hollyhock-3");
+        
+        dprint(0, 20, C_BLACK, "Year: %s", time_vector[0]);
+        dprint(0, 40, C_BLACK, "Month: %s", time_vector[2]);
+        dprint(0, 60, C_BLACK, "Month Date: %s", time_vector[3]);
+        dprint(0, 80, C_BLACK, "Hour: %s", time_vector[4]);
+        dprint(0, 100, C_BLACK, "Minute: %s", time_vector[5]); // Adjusted Y coordinate to 100 (was overlapping 80)
+        dprint(0, 120, C_BLACK, "Second: %s", time_vector[6]); // Adjusted Y coordinate to 120
+        
+        dupdate();
+        
+        if (keydown(KEY_CLEAR) != 0 || keydown(KEY_EXE) != 0) {
+            running = false;
+        }
+    }
+    return 1;
 }

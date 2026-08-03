@@ -2,16 +2,17 @@
 # toolchain file and module path of the fxSDK
 
 cmake_minimum_required(VERSION 3.15)
-project(HH3-Clock)
+project(HH3-Clock LANGUAGES CXX)
 
 include(GenerateG1A)
 include(GenerateG3A)
 include(GenerateHH3)
 include(Fxconv)
 find_package(Gint 2.11.0 REQUIRED)
+find_package(Fxlibc)
 
 set(SOURCES
-  src/main.c
+  src/main.cpp
   # ...
 )
 # Shared assets, fx-9860G-only assets and fx-CG-50-only assets
@@ -31,7 +32,7 @@ fxconv_declare_assets(${ASSETS} ${ASSETS_fx} ${ASSETS_cg} WITH_METADATA)
 
 add_executable(HH3-Clock ${SOURCES} ${ASSETS} ${ASSETS_${FXSDK_PLATFORM}})
 target_compile_options(HH3-Clock PRIVATE -Wall -Wextra -Os -g -flto=auto)
-target_link_libraries(HH3-Clock Gint::Gint JustUI::JustUI)
+target_link_libraries(HH3-Clock Gint::Gint)
 
 if("${FXSDK_PLATFORM_LONG}" STREQUAL fx9860G)
   generate_g1a(TARGET HH3-Clock OUTPUT "HH3-Clock.g1a"
