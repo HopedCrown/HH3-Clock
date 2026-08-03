@@ -3,7 +3,11 @@
 #include <gint/keycodes.h>
 #include <gint/rtc.h>
 #include <stdint.h>
-#include <vector>
+#include <vector> // Used in the ASM portions!
+#include <justui/jlabel.h>
+#include <justui/jbutton.h>
+#include <justui/jlist.h>
+#include <justui/jscrolledlist.h>
 
 // Lookup lists mapped directly to read-only target Flash space
 const char *WEEKDAY_NAMES[] = {"Sunday",   "Monday", "Tuesday", "Wednesday",
@@ -104,7 +108,7 @@ int main(void) {
   dupdate();
 
   std::vector<const char *> time_vector;
-
+  key_event_t input;
   while (running) {
     rtc_get_time(&TIME);
     time_vector = convert_rtc_to_vector(TIME);
@@ -123,9 +127,11 @@ int main(void) {
            time_vector[6]); // Adjusted Y coordinate to 120
     dprint(0, 140, C_BLACK, "Weekday: %s", time_vector[1]);
     dupdate();
-
-    if (keydown(KEY_CLEAR) != 0 || keydown(KEY_EXE) != 0) {
-      return 0;
+    input = pollevent();
+    if (input.type == KEYEV_DOWN){
+      if(keydown(KEY_CLEAR) != 0 || keydown(KEY_EXE) != 0){
+        running = false;
+      }
     }
   }
   return 1;
