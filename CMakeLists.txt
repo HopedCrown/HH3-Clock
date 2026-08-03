@@ -2,14 +2,13 @@
 # toolchain file and module path of the fxSDK
 
 cmake_minimum_required(VERSION 3.15)
-project(MyAddin)
+project(HH3-Clock)
 
 include(GenerateG1A)
 include(GenerateG3A)
 include(GenerateHH3)
 include(Fxconv)
-find_package(Gint 2.9 REQUIRED)
-find_package(JustUI 1.0 REQUIRED)
+find_package(Gint 2.11.0 REQUIRED)
 
 set(SOURCES
   src/main.c
@@ -30,19 +29,19 @@ set(ASSETS_cg
 
 fxconv_declare_assets(${ASSETS} ${ASSETS_fx} ${ASSETS_cg} WITH_METADATA)
 
-add_executable(myaddin ${SOURCES} ${ASSETS} ${ASSETS_${FXSDK_PLATFORM}})
-target_compile_options(myaddin PRIVATE -Wall -Wextra -Os -g -flto=auto)
-target_link_libraries(myaddin Gint::Gint JustUI::JustUI)
+add_executable(HH3-Clock ${SOURCES} ${ASSETS} ${ASSETS_${FXSDK_PLATFORM}})
+target_compile_options(HH3-Clock PRIVATE -Wall -Wextra -Os -g -flto=auto)
+target_link_libraries(HH3-Clock Gint::Gint JustUI::JustUI)
 
 if("${FXSDK_PLATFORM_LONG}" STREQUAL fx9860G)
-  generate_g1a(TARGET myaddin OUTPUT "MyAddin.g1a"
-    NAME "MyAddin" ICON assets-fx/icon.png)
+  generate_g1a(TARGET HH3-Clock OUTPUT "HH3-Clock.g1a"
+    NAME "HH3-Clock" ICON assets-fx/icon.png)
 elseif("${FXSDK_PLATFORM_LONG}" STREQUAL fxCG50)
-  generate_g3a(TARGET myaddin OUTPUT "MyAddin.g3a"
-    NAME "MyAddin" ICONS assets-cg/icon-uns.png assets-cg/icon-sel.png)
+  generate_g3a(TARGET HH3-Clock OUTPUT "HH3-Clock.g3a"
+    NAME "HH3-Clock" ICONS assets-cg/icon-uns.png assets-cg/icon-sel.png)
 elseif("${FXSDK_PLATFORM_LONG}" STREQUAL fx9860G_G3A)
-  generate_g3a(TARGET myaddin OUTPUT "MyAddin-fx.g3a"
-    NAME "MyAddin-fx" ICONS assets-cg/icon-uns.png assets-cg/icon-sel.png)
+  generate_g3a(TARGET HH3-Clock OUTPUT "HH3-Clock-fx.g3a"
+    NAME "HH3-Clock-fx" ICONS assets-cg/icon-uns.png assets-cg/icon-sel.png)
 elseif("${FXSDK_PLATFORM_LONG}" STREQUAL fxCP)
-  generate_hh3(TARGET myaddin OUTPUT "MyAddin.hh3")
+  generate_hh3(TARGET HH3-Clock OUTPUT "HH3-Clock.hh3")
 endif()
