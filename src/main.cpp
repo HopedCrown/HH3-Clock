@@ -4,10 +4,7 @@
 #include <gint/rtc.h>
 #include <stdint.h>
 #include <vector> // Used in the ASM portions!
-#include <justui/jlabel.h>
-#include <justui/jbutton.h>
-#include <justui/jlist.h>
-#include <justui/jscrolledlist.h>
+#include <hh3-clock/theme.hpp>
 
 // Lookup lists mapped directly to read-only target Flash space
 const char *WEEKDAY_NAMES[] = {"Sunday",   "Monday", "Tuesday", "Wednesday",
@@ -24,6 +21,8 @@ static char s_day_buf[3];
 static char s_hour_buf[3];
 static char s_min_buf[3];
 static char s_sec_buf[3];
+
+THEME UI = W_B_Theme;
 
 // Convert a 0-99 value into a two-character ASCII string using SH-4A inline
 // assembly for the digit split.
@@ -99,6 +98,24 @@ std::vector<const char *> convert_rtc_to_vector(const rtc_time_t &time) {
   return result;
 }
 
+void show_help(uint8_t loc_importance) {
+  drect_border(1,396,319,160,UI.bg,3,UI.fg);
+  dupdate();
+  dtext(5,170,UI.textColor,"HH3-Clock Help Screen");
+  dtext(5,180,UI.textColor,"[1] Digital Clock Screen");
+  dtext(5,190,UI.textColor,"[2] Analog Clock Screen");
+  dtext(5,200,UI.textColor,"[3] Settings");
+  dtext(5,210,UI.textColor,"[Clear] Exit");
+  if (loc_importance != 255){
+  dtext(5,220,UI.textColor,"Press Shift in Settings or Another Screen for Screen-Specific Inputs");
+  } else if(loc_importance == 255) {
+    dtext(5,220,UI.warnColor,"Settings-Specific Controls, (WiP)");
+    dtext(5,230,UI.textColor,"[/\\] and [\\/] Move between Options.");
+    dtext(5,240,UI.textColor,"[Left] and [Right] Switch Between Values.");
+    dtext(5,250,UI.warnColor,"[<-] Toggle DevMode (WiP)");
+  }
+}
+
 int main(void) {
   rtc_time_t TIME;
   bool running = true;
@@ -106,6 +123,8 @@ int main(void) {
   dclear(C_WHITE);
   dtext(0, 0, C_BLACK, "HH3-Clock, Clock for Hollyhock-3");
   dupdate();
+
+  dtext(2,410,C_BLACK, "Press Shift for Help.");
 
   std::vector<const char *> time_vector;
   key_event_t input;
@@ -118,18 +137,20 @@ int main(void) {
     dtext(0, 0, C_BLACK, "HH3-Clock, Clock for Hollyhock-3");
 
     dprint(0, 20, C_BLACK, "Year: %s", time_vector[0]);
-    dprint(0, 40, C_BLACK, "Month: %s", time_vector[2]);
-    dprint(0, 60, C_BLACK, "Month Date: %s", time_vector[3]);
-    dprint(0, 80, C_BLACK, "Hour: %s", time_vector[4]);
-    dprint(0, 100, C_BLACK, "Minute: %s",
-           time_vector[5]); // Adjusted Y coordinate to 100 (was overlapping 80)
-    dprint(0, 120, C_BLACK, "Second: %s",
-           time_vector[6]); // Adjusted Y coordinate to 120
-    dprint(0, 140, C_BLACK, "Weekday: %s", time_vector[1]);
+    dprint(0, 30, C_BLACK, "Month: %s", time_vector[2]);
+    dprint(0, 40, C_BLACK, "Month Date: %s", time_vector[3]);
+    dprint(0, 50, C_BLACK, "Hour: %s", time_vector[4]);
+    dprint(0, 60, C_BLACK, "Minute: %s",
+           time_vector[5]); 
+    dprint(0, 70, C_BLACK, "Second: %s",
+           time_vector[6]); 
+    dprint(0, 80, C_BLACK, "Weekday: %s", time_vector[1]);
+    dtext(0, 100, C_BLACK,"Complete Date:");
+    dprint(0,110,C_BLACK, "%s, %s %s, %s %s:%s:%s",time_vector[1],time_vector[2], time_vector[3],time_vector[0],time_vector[4],time_vector[5],time_vector[6]);
     dupdate();
     input = pollevent();
     if (input.type == KEYEV_DOWN){
-      if(keydown(KEY_CLEAR) != 0 || keydown(KEY_EXE) != 0){
+      if(keydown(KEY_CLEAR) != 0){
         running = false;
       }
     }

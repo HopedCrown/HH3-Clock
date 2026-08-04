@@ -2,4 +2,5 @@ CompileFlags:
   Add: [
     "-I/home/dev/.local/share/giteapc/Lephenixnoir/gint/include/",
     "-I/home/dev/.local/share/fxsdk/sysroot/lib/gcc/sh3eb-elf/14.1.0/include",
+    "-I/workspaces/HH3-Clock/include",
   ]

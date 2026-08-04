@@ -9,7 +9,6 @@ include(GenerateG3A)
 include(GenerateHH3)
 include(Fxconv)
 find_package(Gint 2.11.0 REQUIRED)
-#find_package(JustUI 1.4.0 REQUIRED)
 
 set(SOURCES
   src/main.cpp
@@ -28,11 +27,15 @@ set(ASSETS_cg
   # ...
 )
 
+include_directories(
+  "${PROJECT_SOURCE_DIR}/include"
+  "${PROJECT_BINARY_DIR}/include")
+
 fxconv_declare_assets(${ASSETS} ${ASSETS_fx} ${ASSETS_cg} WITH_METADATA)
 
 add_executable(HH3-Clock ${SOURCES} ${ASSETS} ${ASSETS_${FXSDK_PLATFORM}})
-target_compile_options(HH3-Clock PRIVATE -Wall -Wextra -Os -g -flto=auto)
-target_link_libraries(HH3-Clock Gint::Gint -lstdc++) # Once it's required, we'll link JustUI too.
+target_compile_options(HH3-Clock PRIVATE -Iinclude -Wall -Wextra -Os -g -flto=auto)
+target_link_libraries(HH3-Clock Gint::Gint -lstdc++)
 
 if("${FXSDK_PLATFORM_LONG}" STREQUAL fx9860G)
   generate_g1a(TARGET HH3-Clock OUTPUT "HH3-Clock.g1a"
