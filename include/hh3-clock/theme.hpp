@@ -11,6 +11,8 @@ typedef struct THEME {
     int errorColor;
     int TitleColor;
     int titlebgColor;
+    int helpTitleColor;
+    int helpTextColor;
 } THEME;
 
-THEME W_B_Theme = {C_BLACK,C_WHITE,C_BLACK,C_BLACK,C_WHITE,C_BLACK,C_LIGHT,C_BLACK,C_WHITE,C_BLACK};
+THEME W_B_Theme = {C_BLACK,C_WHITE,C_BLACK,C_BLACK,C_WHITE,C_BLACK,C_LIGHT,C_BLACK,C_WHITE,C_BLACK,C_BLACK,C_BLACK};

@@ -1,0 +1,5 @@
+[font.png]
+type: font
+charset: print
+grid.size: 16x27
+grid.padding: 1
