@@ -9,7 +9,7 @@ include(GenerateG3A)
 include(GenerateHH3)
 include(Fxconv)
 find_package(Gint 2.11.0 REQUIRED)
-find_package()
+
 
 set(SOURCES
   src/main.cpp
