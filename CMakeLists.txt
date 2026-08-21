@@ -9,6 +9,7 @@ include(GenerateG3A)
 include(GenerateHH3)
 include(Fxconv)
 find_package(Gint 2.11.0 REQUIRED)
+find_package()
 
 set(SOURCES
   src/main.cpp
@@ -16,6 +17,7 @@ set(SOURCES
 )
 # Shared assets, fx-9860G-only assets and fx-CG-50-only assets
 set(ASSETS
+  assets/font.png
   # ...
 )
 set(ASSETS_fx

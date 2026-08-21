@@ -5,6 +5,22 @@
 #include <stdint.h>
 #include <vector> // Used in the ASM portions!
 #include <hh3-clock/theme.hpp>
+#include <cstring>
+#include <stdexcept>
+#include <cstdlib>
+
+extern "C" char *getenv(const char *name) {
+    (void)name; // Suppress unused parameter warning
+    return nullptr;
+}
+
+
+//NOLINTBEGIN
+HHK_AUTHOR("HopedCrown")
+HHK_NAME("HH3-Clock")
+HHK_VERSION("0.0.1-alpha.1")
+HHK_DESCRIPTION("A Basic RTC-Based Clock via gint ('guin')")
+//NOLINTEND
 
 // Lookup lists mapped directly to read-only target Flash space
 const char *WEEKDAY_NAMES[] = {"Sunday",   "Monday", "Tuesday", "Wednesday",
@@ -97,45 +113,62 @@ std::vector<const char *> convert_rtc_to_vector(const rtc_time_t &time) {
 
   return result;
 }
-
-void show_help(uint8_t loc_importance) {
-  drect_border(1,396,319,160,UI.bg,3,UI.fg);
+extern font_t font;
+void draw_tab(const char *tab, std::vector<const char *>t_vctr) {
+  drect(0,10,320,395,UI.bg);
   dupdate();
-  dtext(5,170,UI.textColor,"HH3-Clock Help Screen");
-  dtext(5,180,UI.textColor,"[1] Digital Clock Screen");
-  dtext(5,190,UI.textColor,"[2] Analog Clock Screen");
-  dtext(5,200,UI.textColor,"[3] Settings");
-  dtext(5,210,UI.textColor,"[Clear] Exit");
-  if (loc_importance != 255){
-  dtext(5,220,UI.textColor,"Press Shift in Settings or Another Screen for Screen-Specific Inputs");
-  } else if(loc_importance == 255) {
-    dtext(5,220,UI.warnColor,"Settings-Specific Controls, (WiP)");
-    dtext(5,230,UI.textColor,"[/\\] and [\\/] Move between Options.");
-    dtext(5,240,UI.textColor,"[Left] and [Right] Switch Between Values.");
-    dtext(5,250,UI.warnColor,"[<-] Toggle DevMode (WiP)");
+  // placeholder
+  if (strcmp(tab,"DIGITAL") == 0) {
+    dfont(&font);
+    // Draw the digital clock, so HH:MM:SS -> need a larger font size, so like 16x18? or 24x27? -> 16x27
+    //                         WD, YYYY:MM:DD
+    dprint(10,12,UI.fg,"%s:%s:%s", t_vctr[4],t_vctr[5],t_vctr[6]);
+    dupdate();
+  } else if(strcmp(tab,"ANALOG") == 0) {
+    // Draw the Analog Clock
+  } else if(strcmp(tab,"SETTINGS") == 0) {
+    // Draw settings
+  } else if(strcmp(tab,"ABOUT") == 0) {
+    // Draw the About page
+  } else {
+    // syntax error
+    throw std::runtime_error("Syntax Error for call to Function 'draw_tab'");
   }
 }
 
 int main(void) {
   rtc_time_t TIME;
   bool running = true;
-
-  dclear(C_WHITE);
-  dtext(0, 0, C_BLACK, "HH3-Clock, Clock for Hollyhock-3");
+  const char *drawTab = "DIGITAL";
+  const font_t orig_font = dfont(&font);
+  // This reminds me:
+  // TODO: Add Ending Screen
+  //draw_tab(drawTab); // get in the usage to stop some compiler errors 
+  dtext(1,290,UI.fg,"TEST");
+  dfont(&orig_font);
+  dclear(C_WHITE); // -> for clearing beforehand draw_tab will be replacing it for now...
+  dtext(0, 0, C_BLACK, "    HH3-Clock, Clock for Hollyhock-3");
   dupdate();
 
-  dtext(2,410,C_BLACK, "Press Shift for Help.");
-
+  // Help section, bottom half of screen...
+  dhline(396,C_BLACK);
+  dhline(397,C_BLACK);
+  dhline(398,C_BLACK);
+  dupdate();
+  dtext(1,400,UI.helpTitleColor,"       Help Section - v0.0.1-alpha.1 ");
+  dtext(1,410,UI.helpTextColor,"             [1] Digital Clock");
+  dtext(1,420,UI.helpTextColor,"             [2] Analog Clock");
+  dtext(1,430,UI.helpTextColor,"             [3] Settings");
+  dtext(1,440,UI.helpTextColor,"             [CLEAR] Exit App");
+  dtext(1,450,UI.helpTextColor,"             [<-] About");
+  dupdate();
   std::vector<const char *> time_vector;
   key_event_t input;
   while (running) {
     rtc_get_time(&TIME);
     time_vector = convert_rtc_to_vector(TIME);
-
-    dclear(C_WHITE); // Clear the frame buffer on every loop to handle value
-                     // updates
-    dtext(0, 0, C_BLACK, "HH3-Clock, Clock for Hollyhock-3");
-
+    // Clear the frame buffer on every loop to handle value updates
+    drect(0,10,320,122,C_WHITE);
     dprint(0, 20, C_BLACK, "Year: %s", time_vector[0]);
     dprint(0, 30, C_BLACK, "Month: %s", time_vector[2]);
     dprint(0, 40, C_BLACK, "Month Date: %s", time_vector[3]);
@@ -150,10 +183,22 @@ int main(void) {
     dupdate();
     input = pollevent();
     if (input.type == KEYEV_DOWN){
-      if(keydown(KEY_CLEAR) != 0){
+      if(keydown(KEY_CLEAR) != 0 || keydown(KEY_ACON) != 0){
         running = false;
-      }
-    }
+      } else if(keypressed(KEY_1) != 0) {
+        // update drawing function that we are drawing the digital clock now.
+        drawTab = "DIGITAL";
+      } else if(keypressed(KEY_2) != 0){
+        // Analog Clock drawing stuff, idk
+        drawTab = "ANALOG";
+      } else if(keypressed(KEY_3) != 0){
+        // Settings drawing stuff
+        drawTab = "SETTINGS";
+      } else if(keypressed(KEY_DEL) != 0) {
+        drawTab = "ABOUT";
+      } else {continue;}
+    } else {continue;}
   }
   return 1;
 }
+
