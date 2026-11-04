@@ -1,2 +1,1 @@
-# HH3-Clock, A Gint-based clock that utilizes the RTC to show the user the time.
-For a changelog, check [Changelog.md](Changelog.md)
+# HH3-Clock, a gint-based clock utilizing the fx-cp 400/fx-cg 500's RTC to get the time. setting is currently not supported.
