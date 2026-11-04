@@ -26,7 +26,7 @@ jobs:
       - name: Upload MyAddin.hh3
         uses: actions/upload-artifact@v4
         with:
-          name: MyAddin.hh3
-          path: MyAddin.hh3
+          name: HH3-Clock.hh3
+          path: HH3-Clock.hh3
           if-no-files-found: error
           retention-days: 14
