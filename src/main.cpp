@@ -113,39 +113,14 @@ std::vector<const char *> convert_rtc_to_vector(const rtc_time_t &time) {
 
   return result;
 }
-extern font_t font;
-void draw_tab(const char *tab, std::vector<const char *>t_vctr) {
-  drect(0,10,320,395,UI.bg);
-  dupdate();
-  // placeholder
-  if (strcmp(tab,"DIGITAL") == 0) {
-    dfont(&font);
-    // Draw the digital clock, so HH:MM:SS -> need a larger font size, so like 16x18? or 24x27? -> 16x27
-    //                         WD, YYYY:MM:DD
-    dprint(10,12,UI.fg,"%s:%s:%s", t_vctr[4],t_vctr[5],t_vctr[6]);
-    dupdate();
-  } else if(strcmp(tab,"ANALOG") == 0) {
-    // Draw the Analog Clock
-  } else if(strcmp(tab,"SETTINGS") == 0) {
-    // Draw settings
-  } else if(strcmp(tab,"ABOUT") == 0) {
-    // Draw the About page
-  } else {
-    // syntax error
-    throw std::runtime_error("Syntax Error for call to Function 'draw_tab'");
-  }
-}
 
 int main(void) {
   rtc_time_t TIME;
-  bool running = true;
-  const char *drawTab = "DIGITAL";
-  const font_t orig_font = dfont(&font);
+  bool running = true;\
   // This reminds me:
   // TODO: Add Ending Screen
   //draw_tab(drawTab); // get in the usage to stop some compiler errors 
-  dtext(1,290,UI.fg,"TEST");
-  dfont(&orig_font);
+  dtext(1,290,UI.fg,"TEST");\
   dclear(C_WHITE); // -> for clearing beforehand draw_tab will be replacing it for now...
   dtext(0, 0, C_BLACK, "    HH3-Clock, Clock for Hollyhock-3");
   dupdate();
@@ -185,18 +160,7 @@ int main(void) {
     if (input.type == KEYEV_DOWN){
       if(keydown(KEY_CLEAR) != 0 || keydown(KEY_ACON) != 0){
         running = false;
-      } else if(keypressed(KEY_1) != 0) {
-        // update drawing function that we are drawing the digital clock now.
-        drawTab = "DIGITAL";
-      } else if(keypressed(KEY_2) != 0){
-        // Analog Clock drawing stuff, idk
-        drawTab = "ANALOG";
-      } else if(keypressed(KEY_3) != 0){
-        // Settings drawing stuff
-        drawTab = "SETTINGS";
-      } else if(keypressed(KEY_DEL) != 0) {
-        drawTab = "ABOUT";
-      } else {continue;}
+      }else {continue;}
     } else {continue;}
   }
   return 1;
